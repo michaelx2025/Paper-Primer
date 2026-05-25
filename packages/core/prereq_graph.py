@@ -64,7 +64,7 @@ def chunk_text(text: str, chunk_size: int = 4000, chunk_overlap: int = 400) -> L
 # Concept extraction
 # -----------------------------
 
-def extract_concepts_from_chunk(llm, chunk: str, max_concepts: int = 25) -> ConceptList:
+def extract_concepts_from_chunk(llm, chunk: str, max_concepts: int = 35) -> ConceptList:
     structured_llm = llm.with_structured_output(ConceptList)
 
     prompt = f"""
@@ -73,16 +73,18 @@ You are analyzing a research paper.
 Extract up to {max_concepts} important concepts that a reader may need to understand this paper.
 
 Rules:
-- Only include concepts relevant to understanding the paper.
+- Only include concepts relevant to understanding the paper and are domain specific.
 - Prefer technical concepts, methods, equations, datasets, assumptions, and evaluation ideas.
 - Do not include generic words like "model", "data", or "experiment" unless paper-specific.
 - Do not reference Arxiv links
-- Do not include file formats like PDF, Markdown, csv, etc.
+- Do not include file formats like PDF, Markdown, arxiv identifier, csv, etc.
 - Use stable snake_case IDs.
 - Keep definitions concise.
 - source_section can be inferred from headings or context.
 - if possible, include an online source link for the concept definition.
 - if a concept mentioned has a formula tied into it, make sure to include the formula in the definition. Use LaTeX formatting for formulas.
+- Do not include information about identifiers like arxiv links, figure numbers, table numbers, or section numbers in the definition. Instead, include that information in the source_section field.
+- If the concept is related to mathematics, please make sure to include the mathematical definition in the definition field, and include the latex for the formulation in the definition field as well.
 
 
 Paper chunk:
@@ -305,7 +307,7 @@ def build_prerequisite_graph(source: str):
     all_concepts = []
 
     # Limit early for MVP. Increase later.
-    for chunk in chunks[:8]:
+    for chunk in chunks[:12]:
         result = extract_concepts_from_chunk(llm, chunk)
         all_concepts.extend(result.concepts)
 
@@ -330,7 +332,7 @@ def build_prerequisite_graph(source: str):
 
 
 if __name__ == "__main__":
-    source = "https://arxiv.org/abs/1912.13200"
+    source = "https://arxiv.org/abs/2605.23829"
 
     G = build_prerequisite_graph(source)
 
