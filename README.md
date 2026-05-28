@@ -38,7 +38,7 @@ Given a research paper, the system generates:
 ## Architecture
 
 ```text
-PDF / arXiv Paper
+PDF / arXiv Paper 
         ↓
     Docling Parser
         ↓
